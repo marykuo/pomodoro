@@ -13,78 +13,92 @@
         <p>Stay focused and productive with the Pomodoro Technique</p>
       </header>
 
+      <!-- Tab Navigation -->
+      <div class="tab-navigation">
+        <button class="tab-button active" data-tab="timer-tab">⏰ Timer</button>
+        <button class="tab-button" data-tab="settings-tab">⚙️ Settings</button>
+      </div>
+
       <!-- Timer -->
-      <section>
-        <div class="timer-display">
-          <div class="timer-circle">
-            <div class="timer-text">
-              <div class="current-session" id="currentSession">Focus Time</div>
-              <div class="time-remaining" id="timeDisplay">25:00</div>
+      <div id="timer-tab" class="tab-content active">
+        <section>
+          <div class="timer-display">
+            <div class="timer-circle">
+              <div class="timer-text">
+                <div class="current-session" id="currentSession">
+                  Focus Time
+                </div>
+                <div class="time-remaining" id="timeDisplay">25:00</div>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="timer-controls">
-          <button id="startBtn" class="btn btn-primary">Start</button>
-          <button id="pauseBtn" class="btn btn-secondary" disabled>
-            Pause
-          </button>
-          <button id="resetBtn" class="btn btn-danger">Reset</button>
-          <button id="nextBtn" class="btn btn-info" disabled>Next</button>
-        </div>
-      </section>
+          <div class="timer-controls">
+            <button id="startBtn" class="btn btn-primary">Start</button>
+            <button id="pauseBtn" class="btn btn-secondary" disabled>
+              Pause
+            </button>
+            <button id="resetBtn" class="btn btn-danger">Reset</button>
+            <button id="nextBtn" class="btn btn-info" disabled>Next</button>
+          </div>
+        </section>
+      </div>
 
       <!-- Settings -->
-      <section>
-        <h2>⚙️ Timer Configuration</h2>
-        <div class="settings-grid">
-          <div class="setting-item">
-            <label for="focusTime">Focus Time (minutes):</label>
-            <input type="number" id="focusTime" min="1" max="60" />
+      <div id="settings-tab" class="tab-content">
+        <section>
+          <h2>⚙️ Timer Configuration</h2>
+          <div class="settings-grid">
+            <div class="setting-item">
+              <label for="focusTime">Focus Time (minutes):</label>
+              <input type="number" id="focusTime" min="1" max="60" />
+            </div>
+            <div class="setting-item">
+              <label for="shortBreak">Short Break (minutes):</label>
+              <input type="number" id="shortBreak" min="1" max="30" />
+            </div>
+            <div class="setting-item">
+              <label for="longBreak">Long Break (minutes):</label>
+              <input type="number" id="longBreak" min="1" max="60" />
+            </div>
+            <div class="setting-item">
+              <label for="longBreakInterval">Long Break Interval:</label>
+              <input type="number" id="longBreakInterval" min="2" max="10" />
+              <small>After how many focus sessions</small>
+            </div>
           </div>
-          <div class="setting-item">
-            <label for="shortBreak">Short Break (minutes):</label>
-            <input type="number" id="shortBreak" min="1" max="30" />
-          </div>
-          <div class="setting-item">
-            <label for="longBreak">Long Break (minutes):</label>
-            <input type="number" id="longBreak" min="1" max="60" />
-          </div>
-          <div class="setting-item">
-            <label for="longBreakInterval">Long Break Interval:</label>
-            <input type="number" id="longBreakInterval" min="2" max="10" />
-            <small>After how many focus sessions</small>
-          </div>
-        </div>
 
-        <h2>⟳ Automation</h2>
-        <div class="settings-toggles">
-          <div class="toggle-item">
-            <label for="autoStartPomodoro">🚀 Auto Start Focus Sessions:</label>
-            <div class="toggle-switch">
-              <input type="checkbox" id="autoStartPomodoro" />
-              <span class="toggle-slider"></span>
+          <h2>⟳ Automation</h2>
+          <div class="settings-toggles">
+            <div class="toggle-item">
+              <label for="autoStartPomodoro"
+                >🚀 Auto Start Focus Sessions:</label
+              >
+              <div class="toggle-switch">
+                <input type="checkbox" id="autoStartPomodoro" />
+                <span class="toggle-slider"></span>
+              </div>
+            </div>
+            <div class="toggle-item">
+              <label for="autoStartBreaks">☕ Auto Start Breaks:</label>
+              <div class="toggle-switch">
+                <input type="checkbox" id="autoStartBreaks" />
+                <span class="toggle-slider"></span>
+              </div>
             </div>
           </div>
-          <div class="toggle-item">
-            <label for="autoStartBreaks">☕ Auto Start Breaks:</label>
-            <div class="toggle-switch">
-              <input type="checkbox" id="autoStartBreaks" />
-              <span class="toggle-slider"></span>
-            </div>
-          </div>
-        </div>
 
-        <h2>📢 Notifications</h2>
-        <div class="settings-toggles">
-          <div class="toggle-item">
-            <label for="alarmEnabled">🔔 Sound Notifications:</label>
-            <div class="toggle-switch">
-              <input type="checkbox" id="alarmEnabled" checked />
-              <span class="toggle-slider"></span>
+          <h2>📢 Notifications</h2>
+          <div class="settings-toggles">
+            <div class="toggle-item">
+              <label for="alarmEnabled">🔔 Sound Notifications:</label>
+              <div class="toggle-switch">
+                <input type="checkbox" id="alarmEnabled" checked />
+                <span class="toggle-slider"></span>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <!-- Audio for notifications -->
       <audio id="notificationSound" preload="auto">

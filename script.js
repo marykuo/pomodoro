@@ -43,6 +43,10 @@ class PomodoroTimer {
 
     // Audio element
     this.notificationSound = document.getElementById("notificationSound");
+
+    // Tab elements
+    this.tabButtons = document.querySelectorAll(".tab-button");
+    this.tabContents = document.querySelectorAll(".tab-content");
   }
 
   bindEvents() {
@@ -67,6 +71,13 @@ class PomodoroTimer {
     this.alarmEnabledInput.addEventListener("change", () =>
       this.saveSettings()
     );
+
+    // Tab switching events
+    this.tabButtons.forEach((button) => {
+      button.addEventListener("click", (e) =>
+        this.switchTab(e.target.dataset.tab)
+      );
+    });
   }
 
   saveSettings() {
@@ -319,6 +330,24 @@ class PomodoroTimer {
         }
       }, 300);
     }, 3000);
+  }
+
+  switchTab(tabId) {
+    // Remove active class from all tab buttons and contents
+    this.tabButtons.forEach((button) => button.classList.remove("active"));
+    this.tabContents.forEach((content) => content.classList.remove("active"));
+
+    // Add active class to clicked tab button
+    const clickedButton = document.querySelector(`[data-tab="${tabId}"]`);
+    if (clickedButton) {
+      clickedButton.classList.add("active");
+    }
+
+    // Show corresponding tab content
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+      targetTab.classList.add("active");
+    }
   }
 }
 
