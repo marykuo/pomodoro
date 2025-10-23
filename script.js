@@ -7,6 +7,7 @@ class PomodoroTimer {
       longBreakInterval: 4,
       autoStartPomodoro: false,
       autoStartBreaks: false,
+      alarmEnabled: true,
     };
 
     this.currentState = "focus"; // 'focus', 'shortBreak', 'longBreak'
@@ -29,6 +30,7 @@ class PomodoroTimer {
     this.longBreakIntervalInput = document.getElementById("longBreakInterval");
     this.autoStartPomodoroInput = document.getElementById("autoStartPomodoro");
     this.autoStartBreaksInput = document.getElementById("autoStartBreaks");
+    this.alarmEnabledInput = document.getElementById("alarmEnabled");
 
     // Timer elements
     this.timeDisplay = document.getElementById("timeDisplay");
@@ -38,6 +40,9 @@ class PomodoroTimer {
     this.pauseBtn = document.getElementById("pauseBtn");
     this.resetBtn = document.getElementById("resetBtn");
     this.nextBtn = document.getElementById("nextBtn");
+
+    // Audio element
+    this.notificationSound = document.getElementById("notificationSound");
   }
 
   bindEvents() {
@@ -59,6 +64,9 @@ class PomodoroTimer {
     this.autoStartBreaksInput.addEventListener("change", () =>
       this.saveSettings()
     );
+    this.alarmEnabledInput.addEventListener("change", () =>
+      this.saveSettings()
+    );
   }
 
   saveSettings() {
@@ -70,6 +78,7 @@ class PomodoroTimer {
     );
     this.settings.autoStartPomodoro = this.autoStartPomodoroInput.checked;
     this.settings.autoStartBreaks = this.autoStartBreaksInput.checked;
+    this.settings.alarmEnabled = this.alarmEnabledInput.checked;
 
     localStorage.setItem("pomodoroSettings", JSON.stringify(this.settings));
 
@@ -98,6 +107,7 @@ class PomodoroTimer {
     this.longBreakIntervalInput.value = this.settings.longBreakInterval;
     this.autoStartPomodoroInput.checked = this.settings.autoStartPomodoro;
     this.autoStartBreaksInput.checked = this.settings.autoStartBreaks;
+    this.alarmEnabledInput.checked = this.settings.alarmEnabled;
   }
 
   startTimer() {
@@ -178,6 +188,7 @@ class PomodoroTimer {
 
   completeSession() {
     this.pauseTimer();
+    this.playNotification();
 
     if (this.currentState === "focus") {
       // Completed a focus session
@@ -264,6 +275,16 @@ class PomodoroTimer {
     }
   }
 
+  playNotification() {
+    // Try to play the audio notification only if alarms are enabled
+    if (this.settings.alarmEnabled) {
+      this.notificationSound.currentTime = 0;
+      this.notificationSound.play().catch((e) => {
+        console.log("Could not play notification sound:", e);
+      });
+    }
+  }
+
   showNotification(message) {
     // Create a simple toast notification
     const notification = document.createElement("div");
@@ -304,9 +325,4 @@ class PomodoroTimer {
 // Initialize the Pomodoro Timer when the page loads
 document.addEventListener("DOMContentLoaded", () => {
   const pomodoro = new PomodoroTimer();
-
-  // Request notification permission
-  if ("Notification" in window && Notification.permission === "default") {
-    Notification.requestPermission();
-  }
 });

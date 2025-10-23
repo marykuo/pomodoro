@@ -73,7 +73,26 @@
             </div>
           </div>
         </div>
+
+        <h2>📢 Notifications</h2>
+        <div class="settings-toggles">
+          <div class="toggle-item">
+            <label for="alarmEnabled">🔔 Sound Notifications:</label>
+            <div class="toggle-switch">
+              <input type="checkbox" id="alarmEnabled" checked />
+              <span class="toggle-slider"></span>
+            </div>
+          </div>
+        </div>
       </section>
+
+      <!-- Audio for notifications -->
+      <audio id="notificationSound" preload="auto">
+        <source
+          src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBz2R3vbHcygJI4DO9tyLNQkY"
+          type="audio/wav"
+        />
+      </audio>
     </div>
 
     <script src="script.js"></script>
