@@ -478,6 +478,7 @@ class PomodoroTimer {
       startTime: startTime.toTimeString().slice(0, 5), // HH:MM format
       endTime: endTime.toTimeString().slice(0, 5), // HH:MM format
       focusMinutes: focusMinutes,
+      remark: "",
     };
 
     this.stats.sessionHistory.unshift(sessionEntry); // Add to beginning
@@ -508,12 +509,49 @@ class PomodoroTimer {
 
     // Add rows for each session
     this.stats.sessionHistory.forEach((session) => {
+      // Create cells
+      const dateTd = document.createElement("td");
+      dateTd.textContent = session.date;
+
+      const timeTd = document.createElement("td");
+      timeTd.textContent = `${session.startTime}~${session.endTime}`;
+
+      const focusTd = document.createElement("td");
+      focusTd.textContent = session.focusMinutes;
+
+      const remarkTd = document.createElement("td");
+      const remarkInput = document.createElement("input");
+      remarkInput.type = "text";
+      remarkInput.className = "remark-input";
+      remarkInput.value = session.remark || "";
+      remarkInput.dataset.sessionDate = session.date;
+      remarkTd.appendChild(remarkInput);
+
+      // When remark changes, save it back to the sessionHistory and localStorage
+      +remarkInput.addEventListener("change", (e) => {
+        const newRemark = e.target.value;
+        // Find the session in the array (match by date + startTime + endTime)
+        const idx = this.stats.sessionHistory.findIndex(
+          (s) =>
+            s.date === session.date &&
+            s.startTime === session.startTime &&
+            s.endTime === session.endTime &&
+            s.focusMinutes === session.focusMinutes
+        );
+        if (idx !== -1) {
+          this.stats.sessionHistory[idx].remark = newRemark;
+          this.saveStats();
+        }
+      });
+
+      // Create row and append cells
       const row = document.createElement("tr");
-      row.innerHTML = `
-                <td>${session.date}</td>
-                <td>${session.startTime}~${session.endTime}</td>
-                <td>${session.focusMinutes}</td>
-            `;
+      row.appendChild(dateTd);
+      row.appendChild(timeTd);
+      row.appendChild(focusTd);
+      row.appendChild(remarkTd);
+
+      // append row to tbody
       tbody.appendChild(row);
     });
   }

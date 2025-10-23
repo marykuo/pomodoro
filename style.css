@@ -397,6 +397,21 @@ section h2 {
   display: block;
 }
 
+.remark-input {
+  width: 100%;
+  max-width: 220px;
+  padding: 8px 10px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.remark-input:focus {
+  outline: none;
+  border-color: #8fbc96;
+  box-shadow: 0 4px 12px rgba(143, 188, 150, 0.12);
+}
+
 /* Buttons */
 .btn {
   padding: 10px 24px;
