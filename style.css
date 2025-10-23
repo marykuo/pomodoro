@@ -1,0 +1,285 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #c5ea9e 0%, #548687 100%);
+  min-height: 100vh;
+  padding: 20px;
+  color: #333;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  background: linear-gradient(45deg, #8fbc96, #548687);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+section {
+  padding: 25px;
+}
+
+section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #4a5568;
+}
+
+/* Timer Section */
+.timer-display {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.timer-circle {
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #8fbc96, #548687);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 15px 30px rgba(143, 188, 150, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.timer-circle::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.timer-text {
+  text-align: center;
+  z-index: 2;
+  position: relative;
+}
+
+.current-session {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 10px;
+}
+
+.time-remaining {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #2d3748;
+  font-family: "Courier New", monospace;
+}
+
+.timer-controls {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+/* Settings Section */
+.settings-grid {
+  margin-left: 20px;
+  margin-bottom: 50px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.setting-item label {
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.setting-item input {
+  padding: 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.setting-item input:focus {
+  outline: none;
+  border-color: #8fbc96;
+}
+
+.setting-item small {
+  font-size: 0.8rem;
+  color: #718096;
+  font-style: italic;
+}
+
+/* Buttons */
+.btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 1.1rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, #8fbc96, #548687);
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(143, 188, 150, 0.4);
+}
+
+.btn-secondary {
+  background: #718096;
+  color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #4a5568;
+  transform: translateY(-2px);
+}
+
+.btn-danger {
+  background: #e53e3e;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #c53030;
+  transform: translateY(-2px);
+}
+
+.btn-info {
+  background: #3182ce;
+  color: white;
+}
+
+.btn-info:hover:not(:disabled) {
+  background: #2c5aa0;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #548687;
+  border: 2px solid #548687;
+}
+
+.btn-outline:hover {
+  background: #548687;
+  color: white;
+  transform: translateY(-2px);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .container {
+    padding: 20px;
+    margin: 10px;
+  }
+
+  header h1 {
+    font-size: 2rem;
+  }
+
+  .timer-circle {
+    width: 200px;
+    height: 200px;
+  }
+
+  .time-remaining {
+    font-size: 2.5rem;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .timer-controls {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .timer-controls .btn {
+    width: 100%;
+    max-width: 200px;
+  }
+}
+
+/* Animation for timer circle */
+.timer-circle.active {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 15px 30px rgba(84, 134, 135, 0.3);
+  }
+  50% {
+    box-shadow: 0 15px 30px rgba(84, 134, 135, 0.6);
+  }
+  100% {
+    box-shadow: 0 15px 30px rgba(84, 134, 135, 0.3);
+  }
+}
+
+/* Focus state styles */
+.timer-circle.focus {
+  background: linear-gradient(135deg, #8fbc96, #548687);
+}
+
+.timer-circle.short-break {
+  background: linear-gradient(135deg, #c5ea9e, #4ecdc4);
+}
+
+.timer-circle.long-break {
+  background: linear-gradient(135deg, #c5ea9e, #4ecdc4);
+}
