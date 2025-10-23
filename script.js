@@ -5,6 +5,8 @@ class PomodoroTimer {
       shortBreak: 5,
       longBreak: 15,
       longBreakInterval: 4,
+      autoStartPomodoro: false,
+      autoStartBreaks: false,
     };
 
     this.currentState = "focus"; // 'focus', 'shortBreak', 'longBreak'
@@ -25,6 +27,8 @@ class PomodoroTimer {
     this.shortBreakInput = document.getElementById("shortBreak");
     this.longBreakInput = document.getElementById("longBreak");
     this.longBreakIntervalInput = document.getElementById("longBreakInterval");
+    this.autoStartPomodoroInput = document.getElementById("autoStartPomodoro");
+    this.autoStartBreaksInput = document.getElementById("autoStartBreaks");
 
     // Timer elements
     this.timeDisplay = document.getElementById("timeDisplay");
@@ -49,6 +53,12 @@ class PomodoroTimer {
     this.longBreakIntervalInput.addEventListener("change", () =>
       this.saveSettings()
     );
+    this.autoStartPomodoroInput.addEventListener("change", () =>
+      this.saveSettings()
+    );
+    this.autoStartBreaksInput.addEventListener("change", () =>
+      this.saveSettings()
+    );
   }
 
   saveSettings() {
@@ -58,6 +68,8 @@ class PomodoroTimer {
     this.settings.longBreakInterval = parseInt(
       this.longBreakIntervalInput.value
     );
+    this.settings.autoStartPomodoro = this.autoStartPomodoroInput.checked;
+    this.settings.autoStartBreaks = this.autoStartBreaksInput.checked;
 
     localStorage.setItem("pomodoroSettings", JSON.stringify(this.settings));
 
@@ -84,6 +96,8 @@ class PomodoroTimer {
     this.shortBreakInput.value = this.settings.shortBreak;
     this.longBreakInput.value = this.settings.longBreak;
     this.longBreakIntervalInput.value = this.settings.longBreakInterval;
+    this.autoStartPomodoroInput.checked = this.settings.autoStartPomodoro;
+    this.autoStartBreaksInput.checked = this.settings.autoStartBreaks;
   }
 
   startTimer() {
@@ -180,6 +194,14 @@ class PomodoroTimer {
           `Well done! Take a ${this.settings.shortBreak}-minute short break.`
         );
       }
+
+      // Auto-start breaks if enabled after 3 seconds delay
+      if (this.settings.autoStartBreaks) {
+        setTimeout(() => {
+          this.startTimer();
+          this.showNotification("Break started automatically!");
+        }, 3000);
+      }
     } else {
       // Completed a break session
       this.currentState = "focus";
@@ -188,6 +210,14 @@ class PomodoroTimer {
       this.showNotification(
         `Break over! Time to focus for ${this.settings.focusTime} minutes.`
       );
+
+      // Auto-start focus sessions if enabled after 3 seconds delay
+      if (this.settings.autoStartPomodoro) {
+        setTimeout(() => {
+          this.startTimer();
+          this.showNotification("Focus session started automatically!");
+        }, 3000);
+      }
     }
 
     this.updateDisplay();

@@ -148,6 +148,82 @@ section h2 {
   font-style: italic;
 }
 
+/* Settings Toggles */
+.settings-toggles {
+  margin-left: 20px;
+}
+
+.toggle-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px 0;
+}
+
+.toggle-item:last-child {
+  margin-bottom: 0;
+}
+
+.toggle-item label {
+  font-weight: 600;
+  color: #4a5568;
+  font-size: 1rem;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  width: 60px;
+  height: 30px;
+}
+
+.toggle-switch input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 30px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: linear-gradient(45deg, #8fbc96, #548687);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(30px);
+}
+
+.toggle-switch:hover .toggle-slider {
+  box-shadow: 0 0 10px rgba(143, 188, 150, 0.3);
+}
+
 /* Buttons */
 .btn {
   padding: 10px 24px;
