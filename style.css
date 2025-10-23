@@ -275,6 +275,128 @@ section h2 {
   box-shadow: 0 0 10px rgba(143, 188, 150, 0.3);
 }
 
+/* Statistics Section */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #2d3748;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.stat-controls {
+  text-align: right;
+  margin-top: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+}
+
+/* Session History Table */
+.table-container {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 15px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9rem;
+}
+
+.history-table thead {
+  background: linear-gradient(45deg, #8fbc96, #548687);
+  color: white;
+}
+
+.history-table thead th:first-child {
+  border-top-left-radius: 15px;
+}
+
+.history-table thead th:last-child {
+  border-top-right-radius: 15px;
+}
+
+.history-table th,
+.history-table td {
+  padding: 14px 10px;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.history-table th {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+  padding: 18px 12px;
+}
+
+.history-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.history-table tbody tr:hover {
+  background: rgba(143, 188, 150, 0.15);
+  transform: scale(1.01);
+  transition: all 0.2s ease;
+}
+
+.history-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.history-table tbody tr:nth-child(odd) {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.history-table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 15px;
+}
+
+.history-table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 15px;
+}
+
+.no-sessions {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+  padding: 60px 20px;
+  display: none;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  margin: 20px 0;
+}
+
+.no-sessions.show {
+  display: block;
+}
+
 /* Buttons */
 .btn {
   padding: 10px 24px;
@@ -379,7 +501,8 @@ section h2 {
     font-size: 2.5rem;
   }
 
-  .settings-grid {
+  .settings-grid,
+  .stats-grid {
     grid-template-columns: 1fr;
   }
 

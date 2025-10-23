@@ -16,9 +16,21 @@ class PomodoroTimer {
     this.timeLeft = this.settings.focusTime * 60;
     this.timer = null;
 
+    this.stats = {
+      totalPomodoros: 0,
+      todayPomodoros: 0,
+      totalFocusTime: 0,
+      lastSessionDate: null,
+      sessionHistory: [],
+    };
+
+    this.currentSessionStart = null;
+
     this.initializeElements();
     this.loadSettings();
+    this.loadStats();
     this.updateDisplay();
+    this.updateSessionHistoryTable();
     this.bindEvents();
   }
 
@@ -44,6 +56,16 @@ class PomodoroTimer {
     // Audio element
     this.notificationSound = document.getElementById("notificationSound");
 
+    // Stats elements
+    this.totalPomodorosDisplay = document.getElementById("totalPomodoros");
+    this.todayPomodorosDisplay = document.getElementById("todayPomodoros");
+    this.totalFocusTimeDisplay = document.getElementById("totalFocusTime");
+    this.resetStatsBtn = document.getElementById("resetStats");
+
+    // Session history elements
+    this.sessionHistoryBody = document.getElementById("sessionHistoryBody");
+    this.noSessionsMessage = document.getElementById("noSessionsMessage");
+
     // Tab elements
     this.tabButtons = document.querySelectorAll(".tab-button");
     this.tabContents = document.querySelectorAll(".tab-content");
@@ -54,6 +76,7 @@ class PomodoroTimer {
     this.pauseBtn.addEventListener("click", () => this.pauseTimer());
     this.resetBtn.addEventListener("click", () => this.resetTimer());
     this.nextBtn.addEventListener("click", () => this.nextSession());
+    this.resetStatsBtn.addEventListener("click", () => this.resetStats());
 
     // Auto-save settings on change
     this.focusTimeInput.addEventListener("change", () => this.saveSettings());
@@ -121,12 +144,43 @@ class PomodoroTimer {
     this.alarmEnabledInput.checked = this.settings.alarmEnabled;
   }
 
+  saveStats() {
+    localStorage.setItem("pomodoroStats", JSON.stringify(this.stats));
+  }
+
+  loadStats() {
+    const savedStats = localStorage.getItem("pomodoroStats");
+    if (savedStats) {
+      const loadedStats = JSON.parse(savedStats);
+      this.stats = { ...this.stats, ...loadedStats };
+    }
+
+    // Ensure sessionHistory exists
+    if (!this.stats.sessionHistory) {
+      this.stats.sessionHistory = [];
+    }
+
+    // Reset today's count if it's a new day
+    const today = new Date().toDateString();
+    if (this.stats.lastSessionDate !== today) {
+      this.stats.todayPomodoros = 0;
+      this.stats.lastSessionDate = today;
+    }
+
+    this.updateStatsDisplay();
+  }
+
   startTimer() {
     this.isRunning = true;
     this.startBtn.disabled = true;
     this.pauseBtn.disabled = false;
     this.nextBtn.disabled = false;
     this.timerCircle.classList.add("active");
+
+    // Record session start time for focus sessions
+    if (this.currentState === "focus") {
+      this.currentSessionStart = new Date();
+    }
 
     this.timer = setInterval(() => {
       this.timeLeft--;
@@ -163,6 +217,26 @@ class PomodoroTimer {
   nextSession() {
     if (!this.isRunning) {
       return; // Only allow next when timer is running
+    }
+
+    // Calculate elapsed time and add to focus time if it's a focus session
+    if (this.currentState === "focus") {
+      const originalTime = this.settings.focusTime * 60;
+      const elapsedTime = Math.ceil((originalTime - this.timeLeft) / 60); // Convert to minutes
+
+      if (elapsedTime > 0) {
+        this.stats.totalFocusTime += elapsedTime;
+        this.stats.lastSessionDate = new Date().toDateString();
+
+        // Add to session history
+        this.addSessionToHistory(elapsedTime);
+
+        this.saveStats();
+        this.updateStatsDisplay();
+        this.showNotification(
+          `Added ${elapsedTime} minutes to your focus time!`
+        );
+      }
     }
 
     // Stop current timer and immediately transition to next session
@@ -203,6 +277,14 @@ class PomodoroTimer {
 
     if (this.currentState === "focus") {
       // Completed a focus session
+      this.stats.totalPomodoros++;
+      this.stats.todayPomodoros++;
+      this.stats.totalFocusTime += this.settings.focusTime;
+      this.stats.lastSessionDate = new Date().toDateString();
+
+      // Add to session history
+      this.addSessionToHistory(this.settings.focusTime);
+
       if (this.currentSession % this.settings.longBreakInterval === 0) {
         this.currentState = "longBreak";
         this.timeLeft = this.settings.longBreak * 60;
@@ -242,7 +324,9 @@ class PomodoroTimer {
       }
     }
 
+    this.saveStats();
     this.updateDisplay();
+    this.updateStatsDisplay();
     this.updateTimerCircleClass();
   }
 
@@ -283,6 +367,35 @@ class PomodoroTimer {
       case "longBreak":
         this.timerCircle.classList.add("long-break");
         break;
+    }
+  }
+
+  updateStatsDisplay() {
+    this.totalPomodorosDisplay.textContent = this.stats.totalPomodoros;
+    this.todayPomodorosDisplay.textContent = this.stats.todayPomodoros;
+
+    const hours = Math.floor(this.stats.totalFocusTime / 60);
+    const minutes = this.stats.totalFocusTime % 60;
+    this.totalFocusTimeDisplay.textContent = `${hours}h ${minutes}m`;
+  }
+
+  resetStats() {
+    if (
+      confirm(
+        "Are you sure you want to reset all statistics? This action cannot be undone."
+      )
+    ) {
+      this.stats = {
+        totalPomodoros: 0,
+        todayPomodoros: 0,
+        totalFocusTime: 0,
+        lastSessionDate: null,
+        sessionHistory: [],
+      };
+      this.saveStats();
+      this.updateStatsDisplay();
+      this.updateSessionHistoryTable();
+      this.showNotification("Statistics reset successfully!");
     }
   }
 
@@ -348,6 +461,61 @@ class PomodoroTimer {
     if (targetTab) {
       targetTab.classList.add("active");
     }
+  }
+
+  addSessionToHistory(focusMinutes) {
+    if (!this.currentSessionStart) {
+      this.currentSessionStart = new Date(
+        Date.now() - focusMinutes * 60 * 1000
+      );
+    }
+
+    const endTime = new Date();
+    const startTime = this.currentSessionStart;
+
+    const sessionEntry = {
+      date: startTime.toISOString().split("T")[0], // YYYY-MM-DD format
+      startTime: startTime.toTimeString().slice(0, 5), // HH:MM format
+      endTime: endTime.toTimeString().slice(0, 5), // HH:MM format
+      focusMinutes: focusMinutes,
+    };
+
+    this.stats.sessionHistory.unshift(sessionEntry); // Add to beginning
+
+    // Keep only last 50 sessions to prevent excessive data
+    if (this.stats.sessionHistory.length > 50) {
+      this.stats.sessionHistory = this.stats.sessionHistory.slice(0, 50);
+    }
+
+    this.currentSessionStart = null;
+    this.saveStats();
+    this.updateSessionHistoryTable();
+  }
+
+  updateSessionHistoryTable() {
+    const tbody = this.sessionHistoryBody;
+    const noSessionsMsg = this.noSessionsMessage;
+
+    // Clear existing rows
+    tbody.innerHTML = "";
+
+    if (this.stats.sessionHistory.length === 0) {
+      noSessionsMsg.classList.add("show");
+      return;
+    }
+
+    noSessionsMsg.classList.remove("show");
+
+    // Add rows for each session
+    this.stats.sessionHistory.forEach((session) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+                <td>${session.date}</td>
+                <td>${session.startTime}~${session.endTime}</td>
+                <td>${session.focusMinutes}</td>
+            `;
+      tbody.appendChild(row);
+    });
   }
 }
 
