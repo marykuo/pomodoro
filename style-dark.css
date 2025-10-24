@@ -121,6 +121,11 @@ body.dark {
   background: rgba(99, 179, 237, 0.08);
 }
 
+.dark .no-sessions {
+  background: #23272f;
+  color: #e2e8f0;
+}
+
 .dark .remark-input {
   background: #23272f;
   color: #e2e8f0;
