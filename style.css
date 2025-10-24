@@ -321,9 +321,7 @@ section h2 {
 
 .stat-controls {
   text-align: right;
-  margin-top: 20px;
-  margin-right: 20px;
-  margin-bottom: 20px;
+  margin: 20px 20px 20px 20px;
 }
 
 /* Session History Table */
@@ -482,6 +480,7 @@ section h2 {
 }
 
 .btn-outline {
+  margin-left: 20px;
   background: transparent;
   color: #548687;
   border: 2px solid #548687;

@@ -73,6 +73,7 @@ class PomodoroTimer {
     // Session history elements
     this.sessionHistoryBody = document.getElementById("sessionHistoryBody");
     this.noSessionsMessage = document.getElementById("noSessionsMessage");
+    this.copyHistoryBtn = document.getElementById("copyHistoryBtn");
 
     // Tab elements
     this.tabButtons = document.querySelectorAll(".tab-button");
@@ -110,6 +111,10 @@ class PomodoroTimer {
       this.saveSettings();
       this.applyDarkMode();
     });
+
+    this.copyHistoryBtn.addEventListener("click", () =>
+      this.copySessionHistory()
+    );
 
     // Tab switching events
     this.tabButtons.forEach((button) => {
@@ -630,6 +635,52 @@ class PomodoroTimer {
       // append row to tbody
       tbody.appendChild(row);
     });
+  }
+
+  copySessionHistory() {
+    if (!this.stats.sessionHistory || this.stats.sessionHistory.length === 0) {
+      this.showNotification("No sessions to copy");
+      return;
+    }
+
+    // Build pipe-separated rows: | date | start~end | minutes | remark |
+    const rows = this.stats.sessionHistory.map((s) => {
+      const remark = s.remark ? s.remark.replace(/\|/g, "\\|") : "";
+      return `| ${s.date} | ${s.startTime}~${s.endTime} | ${s.focusMinutes} | ${remark} |`;
+    });
+
+    const text = rows.join("\n");
+
+    // Try navigator.clipboard first
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          this.showNotification("Session history copied to clipboard");
+        })
+        .catch(() => {
+          this._fallbackCopy(text);
+        });
+    } else {
+      this._fallbackCopy(text);
+    }
+  }
+
+  _fallbackCopy(text) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      const ok = document.execCommand("copy");
+      if (ok) this.showNotification("Session history copied to clipboard");
+      else this.showNotification("Copy failed");
+    } catch (e) {
+      this.showNotification("Copy not supported");
+    }
+    document.body.removeChild(ta);
   }
 }
 
