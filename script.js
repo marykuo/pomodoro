@@ -57,6 +57,7 @@ class PomodoroTimer {
     // Audio element
     this.notificationSound = document.getElementById("notificationSound");
     this.alarmSoundSelect = document.getElementById("alarmSoundSelect");
+    this.darkModeSwitch = document.getElementById("darkModeSwitch");
 
     // WebAudio context for generated tones (fallback to audio element)
     this.audioContext = null;
@@ -100,6 +101,10 @@ class PomodoroTimer {
       this.saveSettings()
     );
     this.alarmSoundSelect.addEventListener("change", () => this.saveSettings());
+    this.darkModeSwitch.addEventListener("change", () => {
+      this.saveSettings();
+      this.applyDarkMode();
+    });
 
     // Tab switching events
     this.tabButtons.forEach((button) => {
@@ -120,6 +125,7 @@ class PomodoroTimer {
     this.settings.autoStartBreaks = this.autoStartBreaksInput.checked;
     this.settings.alarmEnabled = this.alarmEnabledInput.checked;
     this.settings.notificationSound = this.alarmSoundSelect.value;
+    this.settings.darkMode = this.darkModeSwitch.checked;
 
     localStorage.setItem("pomodoroSettings", JSON.stringify(this.settings));
 
@@ -150,6 +156,18 @@ class PomodoroTimer {
     this.autoStartBreaksInput.checked = this.settings.autoStartBreaks;
     this.alarmEnabledInput.checked = this.settings.alarmEnabled;
     this.alarmSoundSelect.value = this.settings.notificationSound || "Bell";
+    if (this.darkModeSwitch) {
+      this.darkModeSwitch.checked = !!this.settings.darkMode;
+      this.applyDarkMode();
+    }
+  }
+
+  applyDarkMode() {
+    if (this.darkModeSwitch && this.darkModeSwitch.checked) {
+      document.body.classList.add("dark");
+    } else {
+      document.body.classList.remove("dark");
+    }
   }
 
   saveStats() {
