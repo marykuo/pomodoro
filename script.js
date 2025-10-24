@@ -7,6 +7,7 @@ class PomodoroTimer {
       longBreakInterval: 4,
       autoStartPomodoro: false,
       autoStartBreaks: false,
+      autoStopPomodoro: false,
       alarmEnabled: true,
       notificationSound: "Bell",
     };
@@ -43,6 +44,7 @@ class PomodoroTimer {
     this.longBreakIntervalInput = document.getElementById("longBreakInterval");
     this.autoStartPomodoroInput = document.getElementById("autoStartPomodoro");
     this.autoStartBreaksInput = document.getElementById("autoStartBreaks");
+    this.autoStopPomodoroInput = document.getElementById("autoStopPomodoro");
     this.alarmEnabledInput = document.getElementById("alarmEnabled");
 
     // Timer elements
@@ -97,6 +99,9 @@ class PomodoroTimer {
     this.autoStartBreaksInput.addEventListener("change", () =>
       this.saveSettings()
     );
+    this.autoStopPomodoroInput.addEventListener("change", () =>
+      this.saveSettings()
+    );
     this.alarmEnabledInput.addEventListener("change", () =>
       this.saveSettings()
     );
@@ -123,6 +128,7 @@ class PomodoroTimer {
     );
     this.settings.autoStartPomodoro = this.autoStartPomodoroInput.checked;
     this.settings.autoStartBreaks = this.autoStartBreaksInput.checked;
+    this.settings.autoStopPomodoro = this.autoStopPomodoroInput.checked;
     this.settings.alarmEnabled = this.alarmEnabledInput.checked;
     this.settings.notificationSound = this.alarmSoundSelect.value;
     this.settings.darkMode = this.darkModeSwitch.checked;
@@ -154,6 +160,7 @@ class PomodoroTimer {
     this.longBreakIntervalInput.value = this.settings.longBreakInterval;
     this.autoStartPomodoroInput.checked = this.settings.autoStartPomodoro;
     this.autoStartBreaksInput.checked = this.settings.autoStartBreaks;
+    this.autoStopPomodoroInput.checked = this.settings.autoStopPomodoro;
     this.alarmEnabledInput.checked = this.settings.alarmEnabled;
     this.alarmSoundSelect.value = this.settings.notificationSound || "Bell";
     if (this.darkModeSwitch) {
@@ -215,7 +222,15 @@ class PomodoroTimer {
       this.updateDisplay();
 
       if (this.timeLeft <= 0) {
-        this.completeSession();
+        // If autoStopPomodoro is true, auto-complete the session when timer reaches 0.
+        if (this.settings.autoStopPomodoro) {
+          this.completeSession();
+          return;
+        }
+
+        if (this.timeLeft === 0) {
+          this.playNotification();
+        }
       }
     }, 1000);
   }
@@ -359,9 +374,11 @@ class PomodoroTimer {
   }
 
   updateDisplay() {
-    const minutes = Math.floor(this.timeLeft / 60);
-    const seconds = this.timeLeft % 60;
-    this.timeDisplay.textContent = `${minutes
+    const sign = this.timeLeft < 0 ? "-" : "";
+    const absSeconds = Math.abs(this.timeLeft);
+    const minutes = Math.floor(absSeconds / 60);
+    const seconds = absSeconds % 60;
+    this.timeDisplay.textContent = `${sign}${minutes
       .toString()
       .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 
