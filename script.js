@@ -10,6 +10,7 @@ class PomodoroTimer {
       autoStopPomodoro: false,
       alarmEnabled: true,
       notificationSound: "Bell",
+      timeFormat24h: true,
     };
 
     this.currentState = "focus"; // 'focus', 'shortBreak', 'longBreak'
@@ -60,6 +61,7 @@ class PomodoroTimer {
     this.notificationSound = document.getElementById("notificationSound");
     this.alarmSoundSelect = document.getElementById("alarmSoundSelect");
     this.darkModeSwitch = document.getElementById("darkModeSwitch");
+    this.timeFormatSwitch = document.getElementById("timeFormatSwitch");
 
     // WebAudio context for generated tones (fallback to audio element)
     this.audioContext = null;
@@ -111,6 +113,10 @@ class PomodoroTimer {
       this.saveSettings();
       this.applyDarkMode();
     });
+    this.timeFormatSwitch.addEventListener("change", () => {
+      this.saveSettings();
+      this.updateSessionHistoryTable();
+    });
 
     this.copyHistoryBtn.addEventListener("click", () =>
       this.copySessionHistory()
@@ -137,6 +143,7 @@ class PomodoroTimer {
     this.settings.alarmEnabled = this.alarmEnabledInput.checked;
     this.settings.notificationSound = this.alarmSoundSelect.value;
     this.settings.darkMode = this.darkModeSwitch.checked;
+    this.settings.timeFormat24h = this.timeFormatSwitch.checked;
 
     localStorage.setItem("pomodoroSettings", JSON.stringify(this.settings));
 
@@ -171,6 +178,9 @@ class PomodoroTimer {
     if (this.darkModeSwitch) {
       this.darkModeSwitch.checked = !!this.settings.darkMode;
       this.applyDarkMode();
+    }
+    if (this.timeFormatSwitch) {
+      this.timeFormatSwitch.checked = !!this.settings.timeFormat24h;
     }
   }
 
@@ -574,6 +584,18 @@ class PomodoroTimer {
     this.updateSessionHistoryTable();
   }
 
+  _formatTime(time24h) {
+    // time24h should be in format "HH:MM"
+    if (this.settings.timeFormat24h) {
+      return time24h; // Keep 24-hour format
+    }
+
+    const [hours, minutes] = time24h.split(":").map(Number);
+    const period = hours >= 12 ? "PM" : "AM";
+    const hours12 = hours % 12 || 12; // Convert 0 to 12 for 12 AM
+    return `${hours12}:${minutes.toString().padStart(2, "0")} ${period}`;
+  }
+
   updateSessionHistoryTable() {
     const tbody = this.sessionHistoryBody;
     const noSessionsMsg = this.noSessionsMessage;
@@ -595,7 +617,9 @@ class PomodoroTimer {
       dateTd.textContent = session.date;
 
       const timeTd = document.createElement("td");
-      timeTd.textContent = `${session.startTime}~${session.endTime}`;
+      const startFormatted = this._formatTime(session.startTime);
+      const endFormatted = this._formatTime(session.endTime);
+      timeTd.textContent = `${startFormatted}~${endFormatted}`;
 
       const focusTd = document.createElement("td");
       focusTd.textContent = session.focusMinutes;
@@ -646,9 +670,10 @@ class PomodoroTimer {
     // Build pipe-separated rows: | date | start~end | minutes | remark |
     const rows = this.stats.sessionHistory.map((s) => {
       const remark = s.remark ? s.remark.replace(/\|/g, "\\|") : "";
-      return `| ${s.date} | ${s.startTime}~${s.endTime} | ${s.focusMinutes} | ${remark} |`;
+      const startFormatted = this._formatTime(s.startTime);
+      const endFormatted = this._formatTime(s.endTime);
+      return `| ${s.date} | ${startFormatted}~${endFormatted} | ${s.focusMinutes} | ${remark} |`;
     });
-
     const text = rows.join("\n");
 
     // Try navigator.clipboard first
