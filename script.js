@@ -8,6 +8,7 @@ class PomodoroTimer {
       autoStartPomodoro: false,
       autoStartBreaks: false,
       alarmEnabled: true,
+      notificationSound: "Bell",
     };
 
     this.currentState = "focus"; // 'focus', 'shortBreak', 'longBreak'
@@ -55,6 +56,10 @@ class PomodoroTimer {
 
     // Audio element
     this.notificationSound = document.getElementById("notificationSound");
+    this.alarmSoundSelect = document.getElementById("alarmSoundSelect");
+
+    // WebAudio context for generated tones (fallback to audio element)
+    this.audioContext = null;
 
     // Stats elements
     this.totalPomodorosDisplay = document.getElementById("totalPomodoros");
@@ -94,6 +99,7 @@ class PomodoroTimer {
     this.alarmEnabledInput.addEventListener("change", () =>
       this.saveSettings()
     );
+    this.alarmSoundSelect.addEventListener("change", () => this.saveSettings());
 
     // Tab switching events
     this.tabButtons.forEach((button) => {
@@ -113,6 +119,7 @@ class PomodoroTimer {
     this.settings.autoStartPomodoro = this.autoStartPomodoroInput.checked;
     this.settings.autoStartBreaks = this.autoStartBreaksInput.checked;
     this.settings.alarmEnabled = this.alarmEnabledInput.checked;
+    this.settings.notificationSound = this.alarmSoundSelect.value;
 
     localStorage.setItem("pomodoroSettings", JSON.stringify(this.settings));
 
@@ -142,6 +149,7 @@ class PomodoroTimer {
     this.autoStartPomodoroInput.checked = this.settings.autoStartPomodoro;
     this.autoStartBreaksInput.checked = this.settings.autoStartBreaks;
     this.alarmEnabledInput.checked = this.settings.alarmEnabled;
+    this.alarmSoundSelect.value = this.settings.notificationSound || "Bell";
   }
 
   saveStats() {
@@ -181,6 +189,8 @@ class PomodoroTimer {
     if (this.currentState === "focus") {
       this.currentSessionStart = new Date();
     }
+
+    this.playNotification();
 
     this.timer = setInterval(() => {
       this.timeLeft--;
@@ -402,10 +412,79 @@ class PomodoroTimer {
   playNotification() {
     // Try to play the audio notification only if alarms are enabled
     if (this.settings.alarmEnabled) {
-      this.notificationSound.currentTime = 0;
-      this.notificationSound.play().catch((e) => {
-        console.log("Could not play notification sound:", e);
-      });
+      // Try WebAudio for short generated sounds; if unavailable, use audio element fallback
+      try {
+        if (!this.audioContext) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.audioContext = new AudioContext();
+        }
+
+        const sound = this.settings.notificationSound || "Bell";
+
+        if (this.audioContext) {
+          const ctx = this.audioContext;
+          const now = ctx.currentTime;
+
+          // Simple implementations for a few named sounds using oscillators
+          if (sound === "Bell") {
+            const o1 = ctx.createOscillator();
+            const o2 = ctx.createOscillator();
+            const g = ctx.createGain();
+            o1.type = "sine";
+            o2.type = "sine";
+            o1.frequency.setValueAtTime(1200, now);
+            o2.frequency.setValueAtTime(600, now);
+            g.gain.setValueAtTime(0.0001, now);
+            g.gain.exponentialRampToValueAtTime(0.3, now + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + 1.0);
+            o1.connect(g);
+            o2.connect(g);
+            g.connect(ctx.destination);
+            o1.start(now);
+            o2.start(now);
+            o1.stop(now + 1.0);
+            o2.stop(now + 1.0);
+          } else if (sound === "Beep") {
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.type = "sine";
+            o.frequency.setValueAtTime(1000, now);
+            g.gain.setValueAtTime(0.0001, now);
+            g.gain.exponentialRampToValueAtTime(0.2, now + 0.01);
+            o.connect(g);
+            g.connect(ctx.destination);
+            o.start(now);
+            o.stop(now + 0.15);
+          } else if (sound === "Chime") {
+            const o = ctx.createOscillator();
+            const g = ctx.createGain();
+            o.type = "triangle";
+            o.frequency.setValueAtTime(880, now);
+            o.frequency.exponentialRampToValueAtTime(440, now + 0.7);
+            g.gain.setValueAtTime(0.0001, now);
+            g.gain.exponentialRampToValueAtTime(0.25, now + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+            o.connect(g);
+            g.connect(ctx.destination);
+            o.start(now);
+            o.stop(now + 1.2);
+          } else {
+            // fallback to audio element
+            this.notificationSound.currentTime = 0;
+            this.notificationSound
+              .play()
+              .catch((e) => console.log("Could not play fallback sound:", e));
+          }
+        } else {
+          // No WebAudio available, use existing audio element
+          this.notificationSound.currentTime = 0;
+          this.notificationSound
+            .play()
+            .catch((e) => console.log("Could not play audio element:", e));
+        }
+      } catch (e) {
+        console.log("Error playing notification sound:", e);
+      }
     }
   }
 
@@ -528,7 +607,7 @@ class PomodoroTimer {
       remarkTd.appendChild(remarkInput);
 
       // When remark changes, save it back to the sessionHistory and localStorage
-      +remarkInput.addEventListener("change", (e) => {
+      remarkInput.addEventListener("change", (e) => {
         const newRemark = e.target.value;
         // Find the session in the array (match by date + startTime + endTime)
         const idx = this.stats.sessionHistory.findIndex(

@@ -172,6 +172,7 @@ section h2 {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  justify-content: space-between;
 }
 
 .setting-item label {
@@ -273,6 +274,20 @@ section h2 {
 
 .toggle-switch:hover .toggle-slider {
   box-shadow: 0 0 10px rgba(143, 188, 150, 0.3);
+}
+
+/* Settings Select */
+.setting-item select {
+  padding: 10px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+}
+
+.sound-row {
+  flex-direction: row !important;
+  align-items: center;
 }
 
 /* Statistics Section */
