@@ -83,7 +83,7 @@ class PomodoroTimer {
     this.startBtn.addEventListener("click", () => this.startTimer());
     this.pauseBtn.addEventListener("click", () => this.pauseTimer());
     this.resetBtn.addEventListener("click", () => this.resetTimer());
-    this.nextBtn.addEventListener("click", () => this.nextSession());
+    this.nextBtn.addEventListener("click", () => this.completeSession());
     this.resetStatsBtn.addEventListener("click", () => this.resetStats());
 
     // Auto-save settings on change
@@ -257,7 +257,7 @@ class PomodoroTimer {
     this.updateTimerCircleClass();
   }
 
-  nextSession() {
+  completeSession() {
     if (!this.isRunning) {
       return; // Only allow next when timer is running
     }
@@ -268,66 +268,28 @@ class PomodoroTimer {
       const elapsedTime = Math.ceil((originalTime - this.timeLeft) / 60); // Convert to minutes
 
       if (elapsedTime > 0) {
+        if (elapsedTime > this.settings.focusTime) {
+          this.stats.totalPomodoros++;
+          this.stats.todayPomodoros++;
+        }
+
         this.stats.totalFocusTime += elapsedTime;
         this.stats.lastSessionDate = new Date().toDateString();
 
         // Add to session history
         this.addSessionToHistory(elapsedTime);
 
-        this.saveStats();
-        this.updateStatsDisplay();
         this.showNotification(
           `Added ${elapsedTime} minutes to your focus time!`
         );
       }
     }
 
-    // Stop current timer and immediately transition to next session
-    this.pauseTimer();
-
-    if (this.currentState === "focus") {
-      // Moving from focus to break (but don't count as completed pomodoro)
-      if (this.currentSession % this.settings.longBreakInterval === 0) {
-        this.currentState = "longBreak";
-        this.timeLeft = this.settings.longBreak * 60;
-        this.showNotification(
-          `Switching to ${this.settings.longBreak}-minute long break.`
-        );
-      } else {
-        this.currentState = "shortBreak";
-        this.timeLeft = this.settings.shortBreak * 60;
-        this.showNotification(
-          `Switching to ${this.settings.shortBreak}-minute short break.`
-        );
-      }
-    } else {
-      // Moving from break to focus
-      this.currentState = "focus";
-      this.timeLeft = this.settings.focusTime * 60;
-      this.currentSession++;
-      this.showNotification(
-        `Switching to ${this.settings.focusTime}-minute focus session.`
-      );
-    }
-
-    this.updateDisplay();
-    this.updateTimerCircleClass();
-  }
-
-  completeSession() {
     this.pauseTimer();
     this.playNotification();
 
+    // Immediately transition to next session
     if (this.currentState === "focus") {
-      // Completed a focus session
-      this.stats.totalPomodoros++;
-      this.stats.todayPomodoros++;
-      this.stats.totalFocusTime += this.settings.focusTime;
-      this.stats.lastSessionDate = new Date().toDateString();
-
-      // Add to session history
-      this.addSessionToHistory(this.settings.focusTime);
-
       if (this.currentSession % this.settings.longBreakInterval === 0) {
         this.currentState = "longBreak";
         this.timeLeft = this.settings.longBreak * 60;
