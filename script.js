@@ -668,7 +668,8 @@ class PomodoroTimer {
     }
 
     // Build pipe-separated rows: | date | start~end | minutes | remark |
-    const rows = this.stats.sessionHistory.map((s) => {
+    // Reverse the array to show oldest sessions first (chronological order)
+    const rows = this.stats.sessionHistory.slice().reverse().map((s) => {
       const remark = s.remark ? s.remark.replace(/\|/g, "\\|") : "";
       const startFormatted = this._formatTime(s.startTime);
       const endFormatted = this._formatTime(s.endTime);
